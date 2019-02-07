@@ -1,0 +1,32 @@
+:root {
+	--grid-size: 10;
+}
+
+.grid {
+	display: inline-grid;
+	grid-template-columns: repeat(var(--grid-size), 1fr);
+	grid-template-rows: repeat(var(--grid-size), 1fr);
+	border: thin solid gray;
+}
+
+.tile {
+	min-width: 12px;
+	min-height: 12px;
+	margin: 2px;
+	font-size: 10px;
+	text-align: center;
+}
+
+.grid.won .tile.bomb,
+.grid.lost .tile.bomb {
+	background-color: red;
+}
+
+.grid.won .tile.bomb input,
+.grid.lost .tile.bomb input {
+	display: none;
+}
+
+.tile.exposed.bomb {
+	background-color: red;
+}
