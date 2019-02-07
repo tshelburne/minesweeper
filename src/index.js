@@ -148,15 +148,12 @@ function bombsAround(...args) {
 	return tilesAround(...args).filter(({bomb}) => bomb)
 }
 
-function zerosAround(...args) {
-	return tilesAround(...args).filter((t) => bombsAround(args[0], t).length === 0)
-}
-
 function zerosPatch(tiles, tile, matches = [], remaining = [], checked = []) {
 	const blacklist = [...matches, ...remaining, ...checked]
-	const [next, ...rest] = zerosAround(tiles, tile, true).filter(t => !blacklist.includes(t))
+	const allAround = tilesAround(tiles, tile).filter(t => !blacklist.includes(t))
+	const [nextToBombs, [next, ...rest]] = split((t) => !!bombsAround(tiles, t).length, allAround)
 
-	const allMatches = tile.bomb || bombsAround(tiles, tile).length > 0 ? matches : [...matches, tile]
+	const allMatches = tile.bomb || bombsAround(tiles, tile).length > 0 ? [...matches, ...nextToBombs] : [...matches, ...nextToBombs, tile]
 	const allRemaining = [...remaining, ...rest]
 	const allChecked = [...checked, tile]
 
@@ -173,6 +170,12 @@ function preventDefault(fn) {
 		e.preventDefault()
 		return fn(e)
 	}
+}
+
+function split(fn, arr) {
+	const matches = arr.filter(fn)
+	const nonMatches = arr.filter(v => !matches.includes(v))
+	return [matches, nonMatches]
 }
 
 // BOOTSTRAP
