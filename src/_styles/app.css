@@ -10,8 +10,8 @@
 }
 
 .tile {
-	min-width: 9px;
-	min-height: 9px;
+	min-width: 12px;
+	min-height: 12px;
 	margin: 1px;
 	font-size: 10px;
 	text-align: center;
