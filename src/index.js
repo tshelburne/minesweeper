@@ -1,4 +1,4 @@
-import React, {useReducer} from 'react'
+import React, {useReducer, useEffect} from 'react'
 import cx from 'classnames'
 import ReactDOM from 'react-dom'
 import memoize from 'memoizee'
@@ -8,14 +8,24 @@ import './_styles/app.css'
 
 // SETTINGS
 
-const BOMB_PCT = .1
-const GRID_SIZE = 15
+const INITIAL_DIFFICULTY = `easy`
+
+const LEVELS = {
+	easy: {size: 10, bombPct: .1},
+	medium: {size: 15, bombPct: .25},
+	hard: {size: 20, bombPct: .3},
+	nuts: {size: 30, bombPct: .5},
+}
 
 // STATE
 
 const RESET = Symbol(`reset`)
 const LEFT_CLICK = Symbol(`left click`)
 const RIGHT_CLICK = Symbol(`right click`)
+
+function reset(name) {
+	return {type: RESET, data: {name, tiles: initTiles(LEVELS[name])}}
+}
 
 function leftClick(tile) {
 	return {type: LEFT_CLICK, data: {tile}}
@@ -25,12 +35,11 @@ function rightClick(tile) {
 	return {type: RIGHT_CLICK, data: {tile}}
 }
 
-function reset() {
-	return {type: RESET, data: {tiles: initTiles(GRID_SIZE, BOMB_PCT)}}
-}
-
 function reducer(state, action) {
 	switch (action.type) {
+		case RESET:
+			return {...state, difficulty: action.data.name, tiles: action.data.tiles}
+
 		case LEFT_CLICK: {
 			if (action.data.tile.flagged) return state
 			const {tile} = action.data
@@ -49,16 +58,13 @@ function reducer(state, action) {
 			return {...state, tiles}
 		}
 
-		case RESET:
-			return {...state, tiles: action.data.tiles}
-
 		default:
 			return state
 	}
 }
 
-function initTiles(gridSize, bombPct) {
-	return Array.from({length: gridSize * gridSize}).map(() => ({
+function initTiles({size, bombPct}) {
+	return Array.from({length: size * size}).map(() => ({
 		exposed: false,
 		flagged: false,
 		bomb: Math.random() < bombPct,
@@ -68,22 +74,30 @@ function initTiles(gridSize, bombPct) {
 // UI
 
 const Game = ({initialState}) => {
-	const [state, dispatch] = useReducer(reducer, initialState)
-	const flagged = state.tiles.filter(({flagged}) => flagged)
-	const bombs = state.tiles.filter(({bomb}) => bomb)
+	const [{difficulty, tiles}, dispatch] = useReducer(reducer, initialState)
+	const level = LEVELS[difficulty]
+	useEffect(() => {
+		document.documentElement.style.setProperty(`--grid-size`, level.size)
+	})
+
+	const flagged = tiles.filter(({flagged}) => flagged)
+	const bombs = tiles.filter(({bomb}) => bomb)
 	const lost = bombs.some(({exposed}) => exposed)
-	const won = !lost && state.tiles.every(({exposed, bomb}) => exposed || bomb)
+	const won = !lost && tiles.every(({exposed, bomb}) => exposed || bomb)
 
 	return <React.Fragment>
 		{!won && !lost && <h1>Playing...</h1>}
 		{won && <h1>YOU WON!</h1>}
 		{lost && <h1>YOU SUCK!</h1>}
-		<button onClick={() => dispatch(reset())}>Reset</button>
+		<button onClick={() => dispatch(reset(difficulty))}>Reset</button>
+		<select onChange={(e) => dispatch(reset(e.target.value))}>
+			{Object.keys(LEVELS).map(name => <option value={name}>{name}</option>)}
+		</select>
 		<h2>{flagged.length} / {bombs.length} bombs flagged</h2>
 		<div className={cx(`grid`, {won, lost})}>
-			{state.tiles.map((tile, i) =>
+			{tiles.map((tile, i) =>
 				<div key={i} className={cx(`tile`, {exposed: tile.exposed, bomb: tile.bomb})}>
-					{tile.exposed && !tile.bomb && bombsAround(state.tiles, tile).length || ``}
+					{tile.exposed && !tile.bomb && bombsAround(tiles, tile).length || ``}
 					{!tile.exposed &&
 						<input
 							type="checkbox"
@@ -102,10 +116,11 @@ const Game = ({initialState}) => {
 // MAIN
 
 function main() {
-	document.documentElement.style.setProperty(`--grid-size`, GRID_SIZE)
-
 	ReactDOM.render(
-		<Game initialState={{tiles: initTiles(GRID_SIZE, BOMB_PCT)}} />,
+		<Game initialState={{
+			difficulty: INITIAL_DIFFICULTY,
+			tiles: initTiles(LEVELS[INITIAL_DIFFICULTY]),
+		}} />,
 		document.getElementById(`app`)
 	)
 }
