@@ -10,11 +10,15 @@
 }
 
 .tile {
-	min-width: 12px;
-	min-height: 12px;
-	margin: 2px;
+	min-width: 9px;
+	min-height: 9px;
+	margin: 1px;
 	font-size: 10px;
 	text-align: center;
+}
+
+.tile.bomb {
+	border-radius: 3px;
 }
 
 .grid.won .tile.bomb,
