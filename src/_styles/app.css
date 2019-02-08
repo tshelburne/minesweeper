@@ -18,16 +18,18 @@
 }
 
 .tile.bomb {
-	border-radius: 3px;
+	border-radius: 2px;
+	width: 10px;
+	min-width: 11px;
+	height: 10px;
+	min-height: 11px;
 }
 
-.grid.won .tile.bomb,
 .grid.lost .tile.bomb {
 	background-color: red;
 }
 
-.grid.won .tile.bomb input,
-.grid.lost .tile.bomb input {
+.grid.lost .tile.bomb:not(.flagged) input {
 	display: none;
 }
 

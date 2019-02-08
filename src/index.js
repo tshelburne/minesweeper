@@ -96,7 +96,7 @@ const Game = ({initialState}) => {
 		<h2>{flagged.length} / {bombs.length} bombs flagged</h2>
 		<div className={cx(`grid`, {won, lost})}>
 			{tiles.map((tile, i) =>
-				<div key={i} className={cx(`tile`, {exposed: tile.exposed, bomb: tile.bomb})}>
+				<div key={i} className={cx(`tile`, {exposed: tile.exposed, flagged: tile.flagged, bomb: tile.bomb})}>
 					{tile.exposed && !tile.bomb && bombsAround(tiles, tile).length || ``}
 					{!tile.exposed &&
 						<input
