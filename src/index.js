@@ -1,4 +1,5 @@
 import React, {useReducer, useEffect} from 'react'
+import useKey from 'use-key-hook'
 import cx from 'classnames'
 import ReactDOM from 'react-dom'
 import memoize from 'memoizee'
@@ -42,6 +43,9 @@ function reducer(state, action) {
 
 		case LEFT_CLICK: {
 			if (action.data.tile.flagged) return state
+			const [won, lost] = wonLost(state.tiles)
+			if (won || lost) return state
+
 			const {tile} = action.data
 
 			const toExpose = !tile.bomb && bombsAround(state.tiles, tile).length === 0
@@ -76,14 +80,29 @@ function initTiles({size, bombPct}) {
 const Game = ({initialState}) => {
 	const [{difficulty, tiles}, dispatch] = useReducer(reducer, initialState)
 	const level = LEVELS[difficulty]
+
 	useEffect(() => {
 		document.documentElement.style.setProperty(`--grid-size`, level.size)
+	}, [level.size])
+
+	useKey((asciiKey) => {
+		switch(asciiKey) {
+			case /* r */ 114:
+				const unexposed = tiles.filter(({exposed}) => !exposed)
+				const index = Math.floor(Math.random() * unexposed.length)
+				return dispatch(leftClick(unexposed[index]))
+			case /* R */ 82:
+				return dispatch(reset(difficulty))
+		}
+	}, {
+		detectKeys: [`r`, `R`],
+	}, {
+		dependencies: [tiles, difficulty],
 	})
 
 	const flagged = tiles.filter(({flagged}) => flagged)
 	const bombs = tiles.filter(({bomb}) => bomb)
-	const lost = bombs.some(({exposed}) => exposed)
-	const won = !lost && tiles.every(({exposed, bomb}) => exposed || bomb)
+	const [won, lost] = wonLost(tiles)
 
 	return <React.Fragment>
 		{!won && !lost && <h1>Playing...</h1>}
@@ -161,6 +180,14 @@ function zerosPatch(tiles, tile, matches = [], remaining = [], checked = []) {
 	if (allRemaining.length > 0) return zerosPatch(tiles, allRemaining[0], allMatches, allRemaining.slice(1), allChecked)
 
 	return allMatches
+}
+
+function wonLost(tiles) {
+	const bombs = tiles.filter(({bomb}) => bomb)
+	const lost = bombs.some(({exposed}) => exposed)
+	const won = !lost && tiles.every(({exposed, bomb}) => exposed || bomb)
+
+	return [won, lost]
 }
 
 // UTIL HELPERS

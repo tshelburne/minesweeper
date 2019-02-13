@@ -29,7 +29,8 @@
     "memoizee": "^0.4.14",
     "normalize.css": "^8.0.1",
     "react": "^16.8.1",
-    "react-dom": "^16.8.1"
+    "react-dom": "^16.8.1",
+    "use-key-hook": "^1.3.0"
   },
   "babel": {
     "presets": [
