@@ -1,5 +1,17 @@
 <html>
-<head></head>
+<head>
+	<script>
+		const config = {
+			INITIAL_DIFFICULTY: `easy`,
+			LEVELS: {
+				easy: {size: 10, bombPct: .1},
+				medium: {size: 15, bombPct: .25},
+				hard: {size: 20, bombPct: .3},
+				nuts: {size: 30, bombPct: .5},
+			},
+		}
+	</script>
+</head>
 <body>
 	<div id="app"></div>
 </body>

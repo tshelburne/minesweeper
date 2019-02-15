@@ -15,6 +15,9 @@ export default {
 			},
 		]
 	},
+	externals: {
+    config: `config`,
+  },
 	plugins: [
 		new HtmlWebpackPlugin({template: `./src/index.html`}),
 		new CleanWebpackPlugin([`public`]),

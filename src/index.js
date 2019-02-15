@@ -4,19 +4,10 @@ import cx from 'classnames'
 import ReactDOM from 'react-dom'
 import memoize from 'memoizee'
 
+import {INITIAL_DIFFICULTY, LEVELS} from 'config'
+
 import 'normalize.css'
 import './_styles/app.css'
-
-// SETTINGS
-
-const INITIAL_DIFFICULTY = `easy`
-
-const LEVELS = {
-	easy: {size: 10, bombPct: .1},
-	medium: {size: 15, bombPct: .25},
-	hard: {size: 20, bombPct: .3},
-	nuts: {size: 30, bombPct: .5},
-}
 
 // STATE
 
